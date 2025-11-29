@@ -4,16 +4,16 @@ import asyncio
 HOST = "127.0.0.1"
 PORT = 12345
 
-async def client(reader, writer):
-    addr = writer.get_extra_info("peername")
-    print(f"Connect to {addr}")
+async def echo_echo(reader, writer):
+    client_addr = writer.get_extra_info("peername")
+    print(f"Connect to {client_addr}")
     try:
         while True:
-            data = await reader.readline()
-            if not data:
+            msg = await reader.read(1024)
+            if not msg:
                 break
 
-            writer.write(data)
+            writer.write(msg)
             await writer.drain()
 
     except Exception as e:
@@ -25,7 +25,7 @@ async def client(reader, writer):
 
 async def main():
     s = await asyncio.start_server(
-        client, HOST, PORT
+        echo_echo, HOST, PORT
     )
 
     print(f"Serving on {HOST}:{PORT}")
